@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 public class MouseController : MonoBehaviour {
 
     public float jetpackForce = 75.0f;
     public float forwardMovementSpeed = 3.0f;
+
+    public float forwardAddSpeed = 0.001f;
 
     public Transform groundCheckTransform;
 
@@ -16,6 +19,17 @@ public class MouseController : MonoBehaviour {
     public ParticleSystem jetpack;
 
     private bool dead = false;
+
+    public uint coins = 0;
+
+    public AudioClip coinCollectSound;
+
+    public AudioSource jetpackAudio;
+    public AudioSource footstepsAudio;
+
+    public ParallaxScrool parallax;
+
+    public Text coinsLabel;
 
     void Start()
     {
@@ -33,9 +47,17 @@ public class MouseController : MonoBehaviour {
           GetComponent<Rigidbody2D>().AddForce(new Vector2(0, jetpackForce));
         }
 
+        parallax.offset = transform.position.x;
+
         if (!dead)
         {
             Vector2 newVelocity = GetComponent<Rigidbody2D>().velocity;
+
+            if (forwardMovementSpeed <= 10)
+            {
+                forwardMovementSpeed += forwardAddSpeed;
+            }
+            
             newVelocity.x = forwardMovementSpeed;
             GetComponent<Rigidbody2D>().velocity = newVelocity;
         }
@@ -43,6 +65,8 @@ public class MouseController : MonoBehaviour {
         UpdateGroundedStatus();
 
         AdjustJetpack(jetPackActive);
+
+        AdjustFootSetpsAndJetpackSound(jetPackActive);
     }
 
     void UpdateGroundedStatus()
@@ -56,18 +80,48 @@ public class MouseController : MonoBehaviour {
 
     void AdjustJetpack(bool jetpackActive)
     {
-        jetpack.enableEmission = !grounded;
-        jetpack.emissionRate = jetpackActive ? 300.0f : 75.0f;
+        
+        if (!dead)
+        {
+            jetpack.enableEmission = !grounded;
+            jetpack.emissionRate = jetpackActive ? 300.0f : 75.0f;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D collider)
     {
-        HitByLaser(collider);
+        if (collider.gameObject.CompareTag("Coins"))
+            CollectCoin(collider);
+        else
+            HitByLaser(collider);
     }
 
     void HitByLaser(Collider2D laserCollider)
     {
+        if (!dead)
+            laserCollider.gameObject.GetComponent<AudioSource>().Play();
+
+        jetpack.enableEmission = false;
         dead = true;
         animator.SetBool("dead", true);
+        parallax.offset = 0;
+    }
+
+    void CollectCoin(Collider2D coinCollider)
+    {
+        coins++;
+        coinsLabel.text = coins.ToString();
+
+        Destroy(coinCollider.gameObject);
+
+        AudioSource.PlayClipAtPoint(coinCollectSound, transform.position);
+    }
+
+    void AdjustFootSetpsAndJetpackSound(bool jetpackActive)
+    {
+        footstepsAudio.enabled = !dead && grounded;
+
+        jetpackAudio.enabled = !dead && !grounded;
+        jetpackAudio.volume = jetpackActive ? 1.0f : 0.5f;
     }
 }
