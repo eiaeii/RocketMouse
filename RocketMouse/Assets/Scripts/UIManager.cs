@@ -7,8 +7,8 @@ public class UIManager : MonoBehaviour {
     public Animator setButtonAnimator;
     public Animator settingWnd;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 	
 	}
 	
@@ -38,4 +38,5 @@ public class UIManager : MonoBehaviour {
 
         settingWnd.SetBool("isOut", true);
     }
+
 }

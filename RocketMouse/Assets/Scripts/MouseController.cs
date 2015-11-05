@@ -15,12 +15,14 @@ public class MouseController : MonoBehaviour {
     public LayerMask groundCheckLayerMask;
 
     Animator animator;
+    public Animator SettlementAnimator;
 
     public ParticleSystem jetpack;
 
     private bool dead = false;
 
     public uint coins = 0;
+    public static uint coinsRecord = 0;
 
     public AudioClip coinCollectSound;
 
@@ -30,6 +32,7 @@ public class MouseController : MonoBehaviour {
     public ParallaxScrool parallax;
 
     public Text coinsLabel;
+    public Text coinsRecordLabel;
 
     void Start()
     {
@@ -105,6 +108,14 @@ public class MouseController : MonoBehaviour {
         dead = true;
         animator.SetBool("dead", true);
         parallax.offset = 0;
+
+        if (coinsRecord < coins)
+        {
+            coinsRecord = coins;
+        }
+        coinsRecordLabel.text = coinsRecord.ToString();
+        SettlementAnimator.enabled = true;
+        SettlementAnimator.SetBool("isOut", false);
     }
 
     void CollectCoin(Collider2D coinCollider)
