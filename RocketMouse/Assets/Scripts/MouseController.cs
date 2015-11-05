@@ -109,12 +109,15 @@ public class MouseController : MonoBehaviour {
 
     void CollectCoin(Collider2D coinCollider)
     {
-        coins++;
-        coinsLabel.text = coins.ToString();
+        if (!dead)
+        {
+            coins++;
+            coinsLabel.text = coins.ToString();
 
-        Destroy(coinCollider.gameObject);
+            Destroy(coinCollider.gameObject);
 
-        AudioSource.PlayClipAtPoint(coinCollectSound, transform.position);
+            AudioSource.PlayClipAtPoint(coinCollectSound, transform.position);
+        }
     }
 
     void AdjustFootSetpsAndJetpackSound(bool jetpackActive)
